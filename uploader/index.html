@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Document Uploader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Container Responsive */
+        .container-custom {
+            max-width: 100%;
+            padding: 1rem;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 640px) {
+            .container-custom {
+                max-width: 640px;
+                padding: 1.5rem;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .container-custom {
+                max-width: 768px;
+                padding: 2rem;
+            }
+        }
+
+        /* Header Styling */
+        .header-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        /* Main Card */
+        .main-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        @media (min-width: 640px) {
+            .main-card {
+                padding: 2rem;
+            }
+        }
+
+        /* Input Styling */
+        .input-field {
+            width: 100%;
+            padding: 1rem 1.25rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #14b8a6;
+            box-shadow: 0 4px 16px rgba(20, 184, 166, 0.2), 0 0 0 4px rgba(20, 184, 166, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 3px dashed #cbd5e1;
+            border-radius: 20px;
+            padding: 2rem 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-area::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.05) 0%, rgba(6, 182, 212, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .upload-area:hover::before {
+            opacity: 1;
+        }
+
+        .upload-area:hover {
+            border-color: #14b8a6;
+            background: linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 100%);
+            box-shadow: 0 8px 24px rgba(20, 184, 166, 0.15);
+        }
+
+        .upload-area.dragover {
+            border-color: #0d9488;
+            background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%);
+            box-shadow: 0 12px 32px rgba(20, 184, 166, 0.25);
+            transform: scale(1.02);
+        }
+
+        @media (min-width: 640px) {
+            .upload-area {
+                padding: 3rem 2rem;
+            }
+        }
+
+        /* File Item */
+        .file-item {
+            background: white;
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.75rem;
+            border: 2px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .file-item:hover {
+            border-color: #14b8a6;
+            box-shadow: 0 8px 20px rgba(20, 184, 166, 0.15);
+            transform: translateX(4px);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Button Primary */
+        .btn-primary {
+            background: linear-gradient(135deg, #14b8a6 0%, #0891b2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 16px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 1.125rem;
+            box-shadow: 0 8px 20px rgba(20, 184, 166, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #0d9488 0%, #0e7490 100%);
+            box-shadow: 0 12px 28px rgba(20, 184, 166, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: white;
+            border-radius: 16px;
+            padding: 1.25rem;
+            border: 2px solid #e5e7eb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .progress-bar-track {
+            width: 100%;
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            border-radius: 12px;
+            height: 12px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #14b8a6, #06b6d4, #8b5cf6);
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 12px rgba(20, 184, 166, 0.5);
+            animation: shimmer 2s infinite;
+            background-size: 200% 100%;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Success Message */
+        .success-box {
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            border: 2px solid #6ee7b7;
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.2);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Copy Button */
+        .copy-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .copy-btn:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Mobile Optimizations */
+        @media (max-width: 640px) {
+            .header-card {
+                padding: 1.25rem;
+                border-radius: 16px;
+            }
+
+            .header-card h1 {
+                font-size: 1.75rem;
+            }
+
+            .header-card p {
+                font-size: 0.875rem;
+            }
+
+            .main-card {
+                border-radius: 20px;
+            }
+
+            .file-item {
+                padding: 0.875rem;
+                font-size: 0.875rem;
+            }
+
+            .btn-primary {
+                padding: 0.875rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+
+        /* Fold Phone Optimizations */
+        @media (max-width: 380px) {
+            .container-custom {
+                padding: 0.75rem;
+            }
+
+            .header-card {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .header-card h1 {
+                font-size: 1.5rem;
+            }
+
+            .main-card {
+                padding: 1.25rem;
+            }
+
+            .upload-area {
+                padding: 1.5rem 0.75rem;
+            }
+
+            .file-item span {
+                font-size: 0.8rem;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+
+        /* Landscape Mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .header-card {
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .upload-area {
+                padding: 1.5rem 1rem;
+            }
+        }
+
+        /* Touch-friendly targets */
+        @media (hover: none) and (pointer: coarse) {
+            .btn-primary,
+            .copy-btn,
+            .upload-area,
+            .file-item button {
+                min-height: 44px;
+            }
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-custom min-h-screen py-4 sm:py-8">
+        <!-- Header -->
+        <div class="header-card">
+            <h1 class="text-3xl sm:text-4xl font-bold mb-2 bg-gradient-to-r from-teal-600 to-blue-600 bg-clip-text text-transparent">
+                <i class="bi bi-cloud-upload"></i> Document Uploader
+            </h1>
+            <p class="text-base sm:text-lg text-gray-600">Share files securely with expiring links</p>
+        </div>
+
+        <!-- Main Card -->
+        <div class="main-card">
+            <!-- Customer Name Input -->
+            <div class="mb-6">
+                <label for="customerName" class="block text-base sm:text-lg font-semibold mb-3 text-gray-800">
+                    <i class="bi bi-person-circle text-teal-600"></i> Customer Name
+                </label>
+                <input type="text" id="customerName" 
+                       class="input-field" 
+                       placeholder="Enter your name (optional)" 
+                       autocomplete="name">
+            </div>
+
+            <!-- Upload Area -->
+            <div id="uploadArea" class="upload-area">
+                <i class="bi bi-cloud-upload text-5xl sm:text-6xl text-teal-600 mb-3 block"></i>
+                <h5 class="text-lg sm:text-xl font-semibold mb-2 text-gray-800">Tap or click to upload</h5>
+                <p class="text-sm sm:text-base text-gray-600">Multiple files supported</p>
+                <p class="text-xs text-gray-500 mt-2">PDF, Images, Documents</p>
+                <input type="file" id="fileInput" multiple hidden accept="*/*">
+            </div>
+
+            <!-- Files List -->
+            <div id="filesList" class="mt-6"></div>
+
+            <!-- Progress Bar -->
+            <div id="progressContainer" class="hidden mt-6 progress-container">
+                <div class="mb-3 flex justify-between text-sm font-semibold text-gray-700">
+                    <span><i class="bi bi-arrow-up-circle"></i> Uploading...</span>
+                    <span id="progressText">0%</span>
+                </div>
+                <div class="progress-bar-track">
+                    <div id="progressBar" class="progress-bar-fill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Upload Button -->
+            <button id="uploadBtn" class="btn-primary mt-6" onclick="uploadFiles()" disabled>
+                <i class="bi bi-upload"></i>
+                <span>Upload Files</span>
+            </button>
+
+            <!-- Success Message -->
+            <div id="success" class="hidden mt-6"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

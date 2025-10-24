@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Viewer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 h-screen overflow-hidden">
+    <!-- Main Container -->
+    <div class="h-screen flex flex-col">
+        <!-- Top Header Bar -->
+        <div class="bg-teal-700 text-white px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <i class="bi bi-file-earmark-text text-2xl"></i>
+                <div>
+                    <h1 class="text-xl font-semibold">Document Viewer</h1>
+                    <p class="text-xs opacity-90">Link ID: <span id="linkId" class="font-mono"></span></p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <span class="text-sm">Expires: <span id="expiryDate" class="font-semibold"></span></span>
+                <button onclick="refreshFiles()" class="bg-teal-600 hover:bg-teal-800 px-4 py-2 rounded-lg transition flex items-center gap-2">
+                    <i class="bi bi-arrow-clockwise"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex overflow-hidden">
+            <!-- Left Sidebar - Customer List -->
+            <div class="w-96 bg-white border-r border-gray-200 flex flex-col">
+                <!-- Search Bar -->
+                <div class="p-4 bg-gray-50 border-b border-gray-200">
+                    <div class="relative">
+                        <i class="bi bi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="customerSearch" placeholder="Search customers..." 
+                               class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-teal-500"
+                               oninput="filterCustomers()">
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loading" class="flex-1 flex items-center justify-center hidden">
+                    <div class="text-center">
+                        <div class="spinner mx-auto mb-4"></div>
+                        <p class="text-gray-600">Loading customers...</p>
+                    </div>
+                </div>
+
+                <!-- Customer List -->
+                <div id="customerList" class="flex-1 overflow-y-auto"></div>
+
+                <!-- Empty/Error State -->
+                <div id="sidebarMessage" class="flex-1 flex items-center justify-center hidden">
+                    <div class="text-center px-8">
+                        <i class="bi bi-inbox text-5xl text-gray-300 mb-4"></i>
+                        <p class="text-gray-500" id="sidebarMessageText"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - File Details -->
+            <div class="flex-1 flex flex-col bg-gray-50">
+                <!-- Default State - No Customer Selected -->
+                <div id="defaultView" class="flex-1 flex items-center justify-center">
+                    <div class="text-center">
+                        <i class="bi bi-chat-left-text text-8xl text-gray-300 mb-6"></i>
+                        <h2 class="text-2xl font-semibold text-gray-700 mb-2">Select a Customer</h2>
+                        <p class="text-gray-500">Choose a customer from the list to view their documents</p>
+                    </div>
+                </div>
+
+                <!-- Customer Header -->
+                <div id="customerHeader" class="hidden bg-white border-b border-gray-200 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-teal-500 flex items-center justify-center text-white font-bold text-xl" id="customerAvatar"></div>
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-800" id="selectedCustomerName"></h2>
+                                <p class="text-sm text-gray-500">
+                                    <span id="fileCount"></span> • Expires in <span id="customerTimeLeft" class="font-semibold text-teal-600"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Files Grid -->
+                <div id="filesContainer" class="hidden flex-1 overflow-y-auto p-6">
+                    <div id="filesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50 p-4" onclick="closePreview(event)">
+        <div class="bg-white rounded-xl max-w-6xl w-full max-h-[90vh] flex flex-col" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-2xl font-bold truncate flex-1 mr-4" id="previewTitle"></h3>
+                <button onclick="closePreview()" class="text-gray-500 hover:text-gray-700 text-3xl leading-none">&times;</button>
+            </div>
+            <div class="flex-1 overflow-auto p-6">
+                <div class="flex items-center justify-center h-full">
+                    <iframe id="previewFrame" class="w-full h-full min-h-[500px] border-0"></iframe>
+                </div>
+            </div>
+            <div class="p-6 border-t flex gap-3 justify-end">
+                <button onclick="downloadFromPreview()" class="btn btn-primary">
+                    <i class="bi bi-download"></i> Download
+                </button>
+                <button onclick="printFromPreview()" class="btn btn-secondary">
+                    <i class="bi bi-printer"></i> Print
+                </button>
+                <button onclick="closePreview()" class="btn btn-secondary">Close</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
