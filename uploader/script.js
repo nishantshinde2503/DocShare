@@ -1,5 +1,6 @@
 // Configuration
-const API_BASE = 'http://localhost:8000';
+//const API_BASE = 'http://localhost:8000';
+const API_BASE = 'https://docshare-75dr.onrender.com';
 let selectedFiles = [];
 let linkId = null;
 
